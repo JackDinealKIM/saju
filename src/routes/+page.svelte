@@ -362,15 +362,30 @@
 								<div class="grid grid-cols-3 gap-4">
 									<div class="space-y-2">
 										<Label _for="year" class="font-semibold">년</Label>
-										<Input id="year" name="year" type="number" placeholder="1990" min="1900" max="2100" required class="text-lg p-6" />
+										<select id="year" name="year" required class="w-full text-lg p-6 border-2 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+											<option value="">선택</option>
+											{#each Array.from({ length: 125 }, (_, i) => 2025 - i) as year}
+												<option value={year}>{year}년</option>
+											{/each}
+										</select>
 									</div>
 									<div class="space-y-2">
 										<Label _for="month" class="font-semibold">월</Label>
-										<Input id="month" name="month" type="number" placeholder="5" min="1" max="12" required class="text-lg p-6" />
+										<select id="month" name="month" required class="w-full text-lg p-6 border-2 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+											<option value="">선택</option>
+											{#each Array.from({ length: 12 }, (_, i) => i + 1) as month}
+												<option value={month}>{month}월</option>
+											{/each}
+										</select>
 									</div>
 									<div class="space-y-2">
 										<Label _for="day" class="font-semibold">일</Label>
-										<Input id="day" name="day" type="number" placeholder="15" min="1" max="31" required class="text-lg p-6" />
+										<select id="day" name="day" required class="w-full text-lg p-6 border-2 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+											<option value="">선택</option>
+											{#each Array.from({ length: 31 }, (_, i) => i + 1) as day}
+												<option value={day}>{day}일</option>
+											{/each}
+										</select>
 									</div>
 								</div>
 
@@ -763,7 +778,7 @@
 
 		<!-- 푸터 -->
 		<div class="text-center mt-12 text-gray-600">
-			<p class="text-lg">🤖 Powered by Gemini 2.5 Flash AI</p>
+			<p class="text-lg">🤖 Powered by 쏘민</p>
 		</div>
 	</div>
 </div>

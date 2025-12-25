@@ -6,8 +6,23 @@
 	import Button from '$lib/components/ui/button.svelte';
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
 	export let data: PageData;
+
+	let copied = false;
+
+	async function copyShareUrl() {
+		try {
+			await navigator.clipboard.writeText($page.url.href);
+			copied = true;
+			setTimeout(() => {
+				copied = false;
+			}, 2000);
+		} catch (err) {
+			console.error('복사 실패:', err);
+		}
+	}
 
 	// AI 분석 결과 (이미 서버에서 파싱됨)
 	const analysis = data.result.aiAnalysis;
@@ -561,20 +576,96 @@
 				{/if}
 			{/if}
 
-			<!-- 액션 버튼 -->
-			<div class="text-center">
-				<Button variant="default" class="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" on:click={() => window.location.href = '/'}>
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-					</svg>
-					내 사주 보러가기
-				</Button>
-			</div>
+			<!-- 공유하기 섹션 -->
+			<Card class="shadow-2xl border-4 border-purple-200">
+				<CardHeader class="bg-gradient-to-r from-purple-100 to-pink-100">
+					<CardTitle class="text-3xl">📤 공유하기</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						<!-- 복사 완료 알림 -->
+						{#if copied}
+							<div class="p-4 bg-green-50 border-2 border-green-300 rounded-lg animate-slide-in">
+								<p class="text-green-700 font-bold text-center flex items-center justify-center gap-2">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+									</svg>
+									링크가 복사되었습니다!
+								</p>
+							</div>
+						{/if}
+
+						<!-- 공유 링크 표시 -->
+						<div class="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+							<p class="text-sm text-gray-600 mb-2 font-semibold">공유 링크</p>
+							<div class="flex items-center gap-2">
+								<input
+									type="text"
+									readonly
+									value={$page.url.href}
+									class="flex-1 px-4 py-3 bg-white border-2 border-purple-200 rounded-lg text-sm font-mono"
+									on:click={(e) => e.currentTarget.select()}
+								/>
+								<Button
+									variant="outline"
+									class="px-6 py-3 border-2 border-purple-300 hover:bg-purple-50"
+									on:click={copyShareUrl}
+								>
+									{#if copied}
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+										</svg>
+									{:else}
+										<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+										</svg>
+									{/if}
+								</Button>
+							</div>
+						</div>
+
+						<!-- 공유 버튼들 -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<Button
+								variant="default"
+								class="text-lg px-6 py-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+								on:click={copyShareUrl}
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+								</svg>
+								링크 복사하기
+							</Button>
+
+							<Button
+								variant="outline"
+								class="text-lg px-6 py-6 border-2 border-purple-300 hover:bg-purple-50"
+								on:click={() => {
+									if (navigator.share) {
+										navigator.share({
+											title: `${data.result.name}님의 사주팔자`,
+											text: `${data.result.name}님의 AI 사주 분석 결과를 확인해보세요!`,
+											url: $page.url.href
+										}).catch(err => console.log('공유 취소:', err));
+									} else {
+										copyShareUrl();
+									}
+								}}
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+								</svg>
+								친구에게 공유하기
+							</Button>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 
 		<!-- 푸터 -->
 		<div class="text-center mt-12 text-gray-600">
-			<p class="text-lg">🤖 Powered by Gemini 2.5 Flash AI</p>
+			<p class="text-lg">🤖 Powered by 쏘민</p>
 		</div>
 	</div>
 </div>

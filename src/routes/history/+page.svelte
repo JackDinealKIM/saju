@@ -139,7 +139,7 @@
 
 		<!-- 푸터 -->
 		<div class="text-center mt-12 text-gray-600">
-			<p class="text-lg">🤖 Powered by Gemini 2.5 Flash AI</p>
+			<p class="text-lg">🤖 Powered by 쏘민</p>
 		</div>
 	</div>
 </div>
