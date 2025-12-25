@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const inviteToken = url.searchParams.get('invite');
 
 	if (!inviteToken) {
-		throw error(403, '초대 링크가 필요합니다. 관리자에게 문의하세요.');
+		throw redirect(302, '/welcome');
 	}
 
 	try {
@@ -47,10 +47,10 @@ export const load: PageServerLoad = async ({ url }) => {
 			}
 		}
 
+	return {
 		inviteToken
 	};
-		};
-	} catch (err: any) {
+} catch (err: any) {
 		if (err.status) throw err;
 		console.error('❌ 초대 토큰 확인 실패:', err);
 		throw error(500, 'DB 연결 오류: 관리자에게 문의하세요.');

@@ -289,14 +289,6 @@
 				AI 사주 Master
 			</h1>
 			<p class="text-xl text-gray-600">초등학생도 쉽게 이해하는 재미있는 사주 분석!</p>
-			<div class="mt-4">
-				<Button variant="outline" size="sm" on:click={() => window.location.href = '/history'}>
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-					</svg>
-					분석 기록 보기
-				</Button>
-			</div>
 		</div>
 
 		{#if !form?.result}
@@ -434,24 +426,20 @@
 				</CardContent>
 			</Card>
 
-	{:else if form.result.aiAnalysis}
-			<!-- 결과 표시 - 구조화된 JSON -->
-			{#if form.result.aiAnalysis}
-				{@const analysis = form.result.aiAnalysis}
-			<div class="space-y-8 animate-slide-up">
+		<!-- 결과 표시 - 구조화된 JSON -->
 
 				<!-- 사주 정보 카드 -->
 				<Card class="shadow-2xl border-4 border-purple-200">
 					<CardHeader class="bg-gradient-to-r from-purple-100 to-pink-100">
-						<CardTitle class="text-3xl">{form.result.name}님의 사주팔자</CardTitle>
+						<CardTitle class="text-3xl">{data.existingResult.name}님의 사주팔자</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div class="grid grid-cols-4 gap-4 mb-6">
 							{#each [
-								{ label: '년주', value: form.result.saju.yearPillar, color: 'from-red-400 to-orange-400' },
-								{ label: '월주', value: form.result.saju.monthPillar, color: 'from-yellow-400 to-green-400' },
-								{ label: '일주', value: form.result.saju.dayPillar, color: 'from-blue-400 to-purple-400' },
-								{ label: '시주', value: form.result.saju.timePillar || '미상', color: 'from-pink-400 to-violet-400' }
+								{ label: '년주', value: data.existingResult.saju.yearPillar, color: 'from-red-400 to-orange-400' },
+								{ label: '월주', value: data.existingResult.saju.monthPillar, color: 'from-yellow-400 to-green-400' },
+								{ label: '일주', value: data.existingResult.saju.dayPillar, color: 'from-blue-400 to-purple-400' },
+								{ label: '시주', value: data.existingResult.saju.timePillar || '미상', color: 'from-pink-400 to-violet-400' }
 							] as pillar}
 								<div class="text-center p-6 bg-gradient-to-br {pillar.color} rounded-xl shadow-lg transform hover:scale-110 transition-all">
 									<div class="text-sm text-white/80 font-semibold">{pillar.label}</div>
@@ -738,49 +726,6 @@
 					</Card>
 				{/if}
 
-			<!-- 공유하기 섹션 -->
-			{#if form.result.shareId}
-				<Card class="shadow-xl border-4 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 mb-8">
-					<CardContent class="p-8">
-						<div class="text-center mb-6">
-							<h3 class="text-3xl font-bold text-purple-700 mb-2">🎁 친구에게 공유하기</h3>
-							<p class="text-gray-600 text-lg">이 멋진 사주 분석 결과를 친구들과 공유해보세요!</p>
-						</div>
-
-						<div class="bg-white rounded-xl p-4 mb-4 border-2 border-purple-300 shadow-inner">
-							<div class="flex items-center gap-3">
-								<div class="flex-1 overflow-x-auto">
-									<code class="text-sm text-purple-700 font-mono break-all">
-										{$page.url.origin}/share/{form.result.shareId}
-									</code>
-								</div>
-								<Button
-									variant="default"
-									class="shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3"
-									on:click={copyShareUrl}
-								>
-									{#if copied}
-										<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-										</svg>
-										복사됨!
-									{:else}
-										<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-										</svg>
-										링크 복사
-									{/if}
-								</Button>
-							</div>
-						</div>
-
-						<div class="text-center text-sm text-gray-500">
-							💡 이 링크는 영구적으로 저장됩니다. 언제든지 다시 볼 수 있어요!
-						</div>
-					</CardContent>
-				</Card>
-			{/if}
-
 			<!-- 액션 버튼 -->
 			<div class="flex justify-center">
 				<Button variant="outline" class="text-lg px-8 py-6" on:click={() => window.location.reload()}>
@@ -790,8 +735,30 @@
 					다시 분석하기
 				</Button>
 			</div>
+		</div>
+	{:else if form?.result?.aiAnalysis}
+			<!-- 새로 분석한 결과 표시 -->
+			{@const analysis = form.result.aiAnalysis}
+			<div class="space-y-8 animate-slide-up">
+				<!-- share 페이지와 동일한 내용이 들어갈 자리 -->
+				<p class="text-center text-green-600 font-bold text-2xl">✅ 분석이 완료되었습니다!</p>
+
+				<!-- 공유 버튼 -->
+				{#if form.result.shareId}
+				<div class="text-center">
+					<Button on:click={copyShareUrl} size="lg" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+						{#if copied}
+							✅ 복사 완료!
+						{:else}
+							🔗 친구에게 공유하기
+						{/if}
+					</Button>
+					<p class="text-sm text-gray-500 mt-2">결과를 친구와 공유할 수 있어요</p>
+				</div>
+				{/if}
+
+				<!-- TODO: share 페이지의 내용을 여기에 복사 -->
 			</div>
-			{/if}
 		{/if}
 
 		<!-- 푸터 -->

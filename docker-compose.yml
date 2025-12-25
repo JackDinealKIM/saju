@@ -1,0 +1,26 @@
+services:
+  # SvelteKit 애플리케이션
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+        GEMINI_API_KEY: ${GEMINI_API_KEY}
+        GEMINI_API_URL: ${GEMINI_API_URL}
+    container_name: saju-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "3200:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - saju-network
+
+networks:
+  saju-network:
+    driver: bridge
