@@ -1,7 +1,7 @@
 import { fail, error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { calculateSaju, formatSajuPillars, type SajuInput } from '$lib/saju';
-import { analyzeSaju } from '$lib/server/gemini';
+import { analyzeSajuDeep } from '$lib/server/gemini';
 import { db } from '$lib/server/db';
 import { sajuLogs, inviteTokens } from '$lib/server/db/schema';
 import { nanoid } from 'nanoid';
@@ -132,16 +132,14 @@ export const actions: Actions = {
 
 			// Gemini AI 분석
 			console.log('🤖 Gemini AI 분석 시작...');
-			const aiAnalysis = await analyzeSaju(
-				{
-					yearPillar: sajuPillars.yearPillar,
-					monthPillar: sajuPillars.monthPillar,
-					dayPillar: sajuPillars.dayPillar,
-					timePillar: sajuPillars.timePillar
-				},
+			const aiAnalysis = await analyzeSajuDeep({
+				yearPillar: sajuPillars.yearPillar,
+				monthPillar: sajuPillars.monthPillar,
+				dayPillar: sajuPillars.dayPillar,
+				timePillar: sajuPillars.timePillar,
 				gender,
-				`${sajuPillars.solarDate.getYear()}년 ${sajuPillars.solarDate.getMonth()}월 ${sajuPillars.solarDate.getDay()}일`
-			);
+				birthDate: `${sajuPillars.solarDate.getYear()}년 ${sajuPillars.solarDate.getMonth()}월 ${sajuPillars.solarDate.getDay()}일`
+			});
 
 			console.log('✅ AI 분석 완료:', aiAnalysis ? 'JSON 객체' : 'null');
 

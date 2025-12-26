@@ -239,153 +239,175 @@ export async function generateText(
 	}
 }
 
+// 인터페이스 정의 (타입 안전성 확보)
+interface SajuInput {
+	yearPillar: string;
+	monthPillar: string;
+	dayPillar: string;
+	timePillar?: string;
+	gender: 'male' | 'female';
+	birthDate: string;
+}
+
 /**
- * 사주 분석용 Gemini API 호출 (구조화된 JSON 응답)
+ * 공통 시스템 프롬프트 생성 (페르소나 + 기본 데이터)
  */
-export async function analyzeSaju(
-	sajuData: {
-		yearPillar: string;
-		monthPillar: string;
-		dayPillar: string;
-		timePillar?: string;
-	},
-	gender: 'male' | 'female',
-	birthDate: string
-): Promise<any> {
+function createBaseSystemPrompt(data: SajuInput, nextYear: number): string {
+	return `
+# Role Definition
+당신은 30년 경력의 정통 명리학자이자 심리 상담가 '도담(道談)'입니다.
+내담자의 사주를 깊이 있게 분석하여, A4 용지 5장 분량의 상세한 리포트 중 [일부분]을 작성하고 있습니다.
+다정하고 깊이 있는 어조("~한 경향이 있네요", "~하는 것이 좋겠습니다")를 유지하세요.
+
+# Input Data
+- 성별: ${data.gender === 'male' ? '남성' : '여성'}
+- 생년월일: ${data.birthDate}
+- 사주 명식: [${data.yearPillar}, ${data.monthPillar}, ${data.dayPillar}, ${data.timePillar || '시주 미상'}]
+- 기준 년도: ${nextYear}년
+`;
+}
+
+/**
+ * 사주 정밀 분석 (4단계 병렬 호출)
+ */
+export async function analyzeSajuDeep(sajuData: SajuInput): Promise<any> {
 	const currentYear = new Date().getFullYear();
 	const nextYear = currentYear + 1;
+	const basePrompt = createBaseSystemPrompt(sajuData, nextYear);
 
-	const prompt = `역할: 당신은 30년 경력의 정통 명리학자이자 심리 상담가입니다.
+	// 4개의 파트를 동시에 호출 (Parallel Execution)
+	try {
+		const [part1, part2, part3, part4] = await Promise.all([
+			// PART 1: 기본 분석 (성격, 적성)
+			generatePart(basePrompt, `
+                # Task: [PART 1. 기본 성향 분석]
+                오직 내담자의 타고난 기질, 성격(겉/속), 잠재력에만 집중하여 분석하세요.
+                
+                # Output Schema (JSON Only):
+                {
+                    "basicAnalysis": {
+                        "title": "나를 정의하다",
+                        "emoji": "🌟",
+                        "totalReview": "3문장 이상의 총평",
+                        "personality": { 
+                            "outer": "겉모습 성격 (상세히)", 
+                            "inner": "내면 심리 (상세히)", 
+                            "strengths": ["강점1", "강점2", "강점3"], 
+                            "weaknesses": ["보완점1", "보완점2"] 
+                        },
+                        "aptitude": "적성과 잠재력 상세 분석"
+                    }
+                }
+            `),
 
-입력 정보:
-- 성별: ${gender === 'male' ? '남성' : '여성'}
-- 생년월일(양력): ${birthDate}
-- 사주팔자(Four Pillars):
-  [년주: ${sajuData.yearPillar}]
-  [월주: ${sajuData.monthPillar}]
-  [일주: ${sajuData.dayPillar}]
-  [시주: ${sajuData.timePillar || '시간 미상'}]
-- 현재 년도: ${currentYear}년
-- 분석 대상 년도: ${nextYear}년 (신년 운세)
+			// PART 2: 직업 및 재물
+			generatePart(basePrompt, `
+                # Task: [PART 2. 부와 명예]
+                오직 직업운, 사업운, 재물운, 성공 전략에만 집중하세요. 구체적인 직업 예시를 포함하세요.
+                
+                # Output Schema (JSON Only):
+                {
+                    "wealthAndCareer": {
+                        "title": "부와 명예의 흐름",
+                        "emoji": "💼",
+                        "jobStyle": "조직생활 vs 사업가 적합도 분석",
+                        "suitableJobs": ["추천 직업1", "추천 직업2", "추천 직업3"],
+                        "wealthLuck": "재물운의 크기와 특징 상세 서술",
+                        "successStrategy": "부자가 되기 위한 현실적 조언"
+                    }
+                }
+            `),
 
-지시사항:
-위 사주 정보를 바탕으로 의뢰인의 운세를 분석해주세요.
-초등학생도 이해할 수 있도록 쉬운 말로 설명하되, 전문성은 유지해주세요.
+			// PART 3: 관계 및 건강
+			generatePart(basePrompt, `
+                # Task: [PART 3. 관계와 안녕]
+                연애, 결혼, 대인관계, 그리고 건강운에 집중하세요.
+                
+                # Output Schema (JSON Only):
+                {
+                    "relationships": {
+                        "title": "인연과 사랑",
+                        "emoji": "💕",
+                        "loveStyle": "연애 스타일 분석",
+                        "spouseLuck": "배우자운 및 결혼 시기",
+                        "socialLuck": "인복 및 귀인 분석",
+                        "caution": "인간관계 주의점"
+                    },
+                    "health": {
+                        "title": "건강과 컨디션",
+                        "emoji": "🌿",
+                        "constitution": "타고난 체질 분석",
+                        "cautionOrgans": ["주의 장기1", "주의 장기2"],
+                        "healthAdvice": "건강 관리 조언"
+                    }
+                }
+            `),
 
-중요한 점수 기준:
-- score 필드는 0-100 사이의 숫자로, 해당 시기의 운세 점수입니다
-- 50점 미만: 어려운 시기, 50-70점: 보통, 70-85점: 좋은 시기, 85점 이상: 매우 좋은 시기
-- 월별 운세와 인생 전체 운세 모두 score 값을 반드시 포함해주세요
+			// PART 4: 시기별 운세 및 조언
+			generatePart(basePrompt, `
+                # Task: [PART 4. 운의 흐름과 조언]
+                대운(10년 주기), ${nextYear}년 신년 운세, 그리고 개운법을 작성하세요.
+                
+                # Output Schema (JSON Only):
+                {
+                    "lifeFlow": {
+                        "title": "인생 전체 대운",
+                        "emoji": "🌊",
+                        "summary": "인생 흐름 요약",
+                        "primeEra": "황금기(전성기) 시기",
+                        "graph": [
+                             { "ageGroup": "20대", "keyword": "키워드", "desc": "운세 설명", "score": 70 },
+                             { "ageGroup": "30대", "keyword": "키워드", "desc": "운세 설명", "score": 80 },
+                             { "ageGroup": "40대", "keyword": "키워드", "desc": "운세 설명", "score": 90 },
+                             { "ageGroup": "50대", "keyword": "키워드", "desc": "운세 설명", "score": 85 }
+                        ]
+                    },
+                    "yearFortune": {
+                        "title": "${nextYear}년 신년 운세",
+                        "emoji": "🎊",
+                        "overview": "신년 총평",
+                        "monthly": [
+                            { "month": 1, "period": "1분기", "fortune": "운세 상세", "score": 80, "action": "행동 지침" },
+                            { "month": 4, "period": "2분기", "fortune": "운세 상세", "score": 70, "action": "행동 지침" },
+                            { "month": 7, "period": "3분기", "fortune": "운세 상세", "score": 60, "action": "행동 지침" },
+                            { "month": 10, "period": "4분기", "fortune": "운세 상세", "score": 90, "action": "행동 지침" }
+                        ]
+                    },
+                    "finalAdvice": {
+                        "title": "도담의 처방",
+                        "emoji": "📜",
+                        "luckyItems": { "color": "색", "number": "수", "direction": "방향", "item": "물건" },
+                        "wiseSaying": "명언",
+                        "closing": "마무리 인사"
+                    }
+                }
+            `)
+		]);
 
-다음 JSON 형식으로만 출력하세요:
+		// 4. 결과 병합 (Merge Results)
+		return {
+			...part1,
+			...part2,
+			...part3,
+			...part4
+		};
 
-\`\`\`json
-{
-  "personality": {
-    "title": "타고난 성격",
-    "emoji": "🌟",
-    "summary": "한 줄로 요약한 핵심 성격",
-    "traits": [
-      { "trait": "성격 특징1", "description": "설명" },
-      { "trait": "성격 특징2", "description": "설명" },
-      { "trait": "성격 특징3", "description": "설명" }
-    ],
-    "strengths": ["장점1", "장점2", "장점3"],
-    "weaknesses": ["주의할점1", "주의할점2"]
-  },
-  "career": {
-    "title": "직업과 재물운",
-    "emoji": "💼",
-    "summary": "어떤 일을 하면 잘 될까요?",
-    "suitableJobs": [
-      { "category": "직업 분야1", "examples": ["구체적 직업1", "구체적 직업2"] },
-      { "category": "직업 분야2", "examples": ["구체적 직업3", "구체적 직업4"] }
-    ],
-    "moneyTips": ["재물 조언1", "재물 조언2", "재물 조언3"]
-  },
-  "relationships": {
-    "title": "인간관계와 사랑",
-    "emoji": "💕",
-    "summary": "사람들과 어떻게 지낼까요?",
-    "loveStyle": "연애 스타일 설명",
-    "idealPartner": "이상적인 배우자 스타일",
-    "friendshipTips": ["친구 사귀기 팁1", "친구 사귀기 팁2"]
-  },
-  "yearFortune_${nextYear}": {
-    "title": "${nextYear}년 신년 운세",
-    "emoji": "🎊",
-    "overall": "전체 운세 한 줄 요약",
-    "months": [
-      {
-        "month": 1,
-        "period": "1월-3월",
-        "fortune": "운세 설명",
-        "score": 75,
-        "luckyColor": "행운의 색깔",
-        "advice": "조언"
-      },
-      {
-        "month": 4,
-        "period": "4월-6월",
-        "fortune": "운세 설명",
-        "score": 85,
-        "luckyColor": "행운의 색깔",
-        "advice": "조언"
-      },
-      {
-        "month": 7,
-        "period": "7월-9월",
-        "fortune": "운세 설명",
-        "score": 65,
-        "luckyColor": "행운의 색깔",
-        "advice": "조언"
-      },
-      {
-        "month": 10,
-        "period": "10월-12월",
-        "fortune": "운세 설명",
-        "score": 90,
-        "luckyColor": "행운의 색깔",
-        "advice": "조언"
-      }
-    ],
-    "luckyNumbers": [1, 7, 9],
-    "avoidDates": ["특히 조심해야 할 시기"]
-  },
-  "lifeFortune": {
-    "title": "인생 전체 운세",
-    "emoji": "🌈",
-    "summary": "전체 인생 흐름 요약",
-    "decades": [
-      { "age": "0-10세", "period": "유년기", "fortune": "운세", "score": 70 },
-      { "age": "11-20세", "period": "청소년기", "fortune": "운세", "score": 75 },
-      { "age": "21-30세", "period": "청년기", "fortune": "운세", "score": 80 },
-      { "age": "31-40세", "period": "장년기", "fortune": "운세", "score": 85 },
-      { "age": "41-50세", "period": "중년기", "fortune": "운세", "score": 75 },
-      { "age": "51-60세", "period": "중년후기", "fortune": "운세", "score": 80 },
-      { "age": "61-70세", "period": "노년기", "fortune": "운세", "score": 85 },
-      { "age": "71-80세", "period": "노년후기", "fortune": "운세", "score": 90 }
-    ],
-    "peakPeriod": "가장 좋은 시기 (예: 31-40세)",
-    "challengePeriod": "조심해야 할 시기 (예: 41-50세)"
-  },
-  "advice": {
-    "title": "인생 조언",
-    "emoji": "📜",
-    "quote": "마음에 새길 한 마디",
-    "dailyHabits": ["매일 실천할 습관1", "매일 실천할 습관2"],
-    "yearGoals": ["올해 목표1", "올해 목표2"]
-  }
+	} catch (error) {
+		console.error("Saju Analysis Error:", error);
+		throw new Error("사주 분석 중 오류가 발생했습니다.");
+	}
 }
-\`\`\`
 
-중요: 반드시 위 JSON 형식을 정확히 지켜주세요. 모든 값은 초등학생도 이해할 수 있게 쉽고 재미있게 작성해주세요.`;
+/**
+ * 개별 파트 호출 헬퍼 함수
+ */
+async function generatePart(baseSystemPrompt: string, specificPrompt: string): Promise<any> {
+	const fullPrompt = `${baseSystemPrompt}\n\n${specificPrompt}\n\n중요: JSON 형식 외에는 아무것도 출력하지 마세요.`;
 
-	const result = await generateText(prompt, {
-		temperature: 0.8,
-		maxOutputTokens: 12000,
+	// 기존에 사용하시던 generateText 함수 호출
+	return await generateText(fullPrompt, {
+		temperature: 0.85, // 창의적이고 풍부한 서술
+		maxOutputTokens: 8000, // 각 파트별 넉넉한 토큰
 		parseJson: true
 	});
-
-	return result;
 }

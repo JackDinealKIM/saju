@@ -431,7 +431,8 @@
 			</div>
 		{:else if data.existingResult}
 		<!-- 기존 분석 결과 표시 -->
-		{@const analysis = data.existingResult.aiAnalysis}
+		{@const rawAnalysis = data.existingResult.aiAnalysis}
+		{@const analysis = typeof rawAnalysis === 'string' ? JSON.parse(rawAnalysis) : rawAnalysis}
 		<div class="space-y-8 animate-slide-up">
 			<!-- 안내 메시지 -->
 			<Card class="shadow-xl border-4 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
@@ -753,7 +754,8 @@
 		</div>
 	{:else if form?.result?.aiAnalysis}
 			<!-- 새로 분석한 결과 표시 -->
-			{@const analysis = form.result.aiAnalysis}
+			{@const rawAnalysis = form.result.aiAnalysis}
+			{@const analysis = typeof rawAnalysis === 'string' ? JSON.parse(rawAnalysis) : rawAnalysis}
 			<div class="space-y-8 animate-slide-up">
 				<!-- share 페이지와 동일한 내용이 들어갈 자리 -->
 				<p class="text-center text-green-600 font-bold text-2xl">✅ 분석이 완료되었습니다!</p>
