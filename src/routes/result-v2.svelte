@@ -502,26 +502,153 @@
 									{analysis.relationships.title || '인연과 사랑'}
 								</h4>
 
-								<!-- 연애 스타일 -->
-								{#if hasText(analysis.relationships.loveStyle)}
-									<div class="mb-4 p-5 bg-pink-50 rounded-xl border-2 border-pink-300">
-										<h5 class="font-bold text-lg mb-2 text-pink-800">💕 연애 스타일</h5>
-										<p class="text-gray-700 leading-relaxed">{analysis.relationships.loveStyle}</p>
+								<!-- 연애 스타일 (상세) -->
+								{#if hasData(analysis.relationships.loveStyle)}
+									<div class="mb-6 p-5 bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl border-2 border-pink-300">
+										<h5 class="font-bold text-xl mb-4 text-pink-800 flex items-center gap-2">
+											<span>💕</span>
+											<span>연애 스타일</span>
+										</h5>
+										<div class="space-y-3">
+											{#if hasText(analysis.relationships.loveStyle.approach)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-pink-400">
+													<p class="text-sm font-semibold text-pink-700 mb-1">연애 접근 방식</p>
+													<p class="text-gray-700">{analysis.relationships.loveStyle.approach}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.loveStyle.expression)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-pink-400">
+													<p class="text-sm font-semibold text-pink-700 mb-1">애정 표현 스타일</p>
+													<p class="text-gray-700">{analysis.relationships.loveStyle.expression}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.loveStyle.compatibility)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-pink-400">
+													<p class="text-sm font-semibold text-pink-700 mb-1">잘 맞는 이성 유형</p>
+													<p class="text-gray-700">{analysis.relationships.loveStyle.compatibility}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.loveStyle.dating)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-pink-400">
+													<p class="text-sm font-semibold text-pink-700 mb-1">연애 특징</p>
+													<p class="text-gray-700">{analysis.relationships.loveStyle.dating}</p>
+												</div>
+											{/if}
+										</div>
 									</div>
 								{/if}
 
-								<!-- 배우자운 -->
-								{#if hasText(analysis.relationships.spouseLuck)}
-									<div class="mb-4 p-5 bg-rose-50 rounded-xl border-2 border-rose-300">
-										<h5 class="font-bold text-lg mb-2 text-rose-800">💑 배우자운</h5>
-										<p class="text-gray-700 leading-relaxed">{analysis.relationships.spouseLuck}</p>
+								<!-- 연애운 (신규) -->
+								{#if hasData(analysis.relationships.loveFortune)}
+									<div class="mb-6 p-5 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl border-2 border-red-300">
+										<h5 class="font-bold text-xl mb-4 text-red-800 flex items-center gap-2">
+											<span>❤️</span>
+											<span>연애운</span>
+										</h5>
+										<div class="space-y-3">
+											{#if hasText(analysis.relationships.loveFortune.overall)}
+												<div class="p-4 bg-white rounded-lg border-2 border-red-200">
+													<p class="text-gray-800 leading-relaxed">{analysis.relationships.loveFortune.overall}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.loveFortune.timing)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-red-400">
+													<p class="text-sm font-semibold text-red-700 mb-1">🌟 좋은 시기</p>
+													<p class="text-gray-700">{analysis.relationships.loveFortune.timing}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.loveFortune.challenges)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-red-400">
+													<p class="text-sm font-semibold text-red-700 mb-1">⚡ 어려움</p>
+													<p class="text-gray-700">{analysis.relationships.loveFortune.challenges}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.loveFortune.advice)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-red-400">
+													<p class="text-sm font-semibold text-red-700 mb-1">💡 조언</p>
+													<p class="text-gray-700">{analysis.relationships.loveFortune.advice}</p>
+												</div>
+											{/if}
+										</div>
+									</div>
+								{/if}
+
+								<!-- 애정운 (신규) -->
+								{#if hasData(analysis.relationships.affectionLuck)}
+									<div class="mb-6 p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-300">
+										<h5 class="font-bold text-xl mb-4 text-purple-800 flex items-center gap-2">
+											<span>💖</span>
+											<span>애정운</span>
+										</h5>
+										<div class="space-y-3">
+											{#if hasText(analysis.relationships.affectionLuck.charm)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-purple-400">
+													<p class="text-sm font-semibold text-purple-700 mb-1">✨ 매력 포인트</p>
+													<p class="text-gray-700">{analysis.relationships.affectionLuck.charm}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.affectionLuck.popularity)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-purple-400">
+													<p class="text-sm font-semibold text-purple-700 mb-1">🌟 이성 인기도</p>
+													<p class="text-gray-700">{analysis.relationships.affectionLuck.popularity}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.affectionLuck.romanticTendency)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-purple-400">
+													<p class="text-sm font-semibold text-purple-700 mb-1">🌹 낭만 성향</p>
+													<p class="text-gray-700">{analysis.relationships.affectionLuck.romanticTendency}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.affectionLuck.longTermLove)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-purple-400">
+													<p class="text-sm font-semibold text-purple-700 mb-1">💑 장기 연애력</p>
+													<p class="text-gray-700">{analysis.relationships.affectionLuck.longTermLove}</p>
+												</div>
+											{/if}
+										</div>
+									</div>
+								{/if}
+
+								<!-- 배우자운 (상세) -->
+								{#if hasData(analysis.relationships.spouseLuck)}
+									<div class="mb-6 p-5 bg-gradient-to-br from-rose-50 to-red-50 rounded-xl border-2 border-rose-300">
+										<h5 class="font-bold text-xl mb-4 text-rose-800 flex items-center gap-2">
+											<span>💑</span>
+											<span>배우자운</span>
+										</h5>
+										<div class="space-y-3">
+											{#if hasText(analysis.relationships.spouseLuck.timing)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-rose-400">
+													<p class="text-sm font-semibold text-rose-700 mb-1">⏰ 결혼 적령기</p>
+													<p class="text-gray-700">{analysis.relationships.spouseLuck.timing}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.spouseLuck.idealSpouse)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-rose-400">
+													<p class="text-sm font-semibold text-rose-700 mb-1">👤 이상적인 배우자</p>
+													<p class="text-gray-700">{analysis.relationships.spouseLuck.idealSpouse}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.spouseLuck.marriageStyle)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-rose-400">
+													<p class="text-sm font-semibold text-rose-700 mb-1">🏠 결혼 생활</p>
+													<p class="text-gray-700">{analysis.relationships.spouseLuck.marriageStyle}</p>
+												</div>
+											{/if}
+											{#if hasText(analysis.relationships.spouseLuck.advice)}
+												<div class="p-3 bg-white rounded-lg border-l-4 border-rose-400">
+													<p class="text-sm font-semibold text-rose-700 mb-1">💡 조언</p>
+													<p class="text-gray-700">{analysis.relationships.spouseLuck.advice}</p>
+												</div>
+											{/if}
+										</div>
 									</div>
 								{/if}
 
 								<!-- 대인운 -->
 								{#if hasText(analysis.relationships.socialLuck)}
-									<div class="mb-4 p-5 bg-purple-50 rounded-xl border-2 border-purple-300">
-										<h5 class="font-bold text-lg mb-2 text-purple-800">🤝 대인운 및 귀인</h5>
+									<div class="mb-4 p-5 bg-indigo-50 rounded-xl border-2 border-indigo-300">
+										<h5 class="font-bold text-lg mb-2 text-indigo-800">🤝 대인운 및 귀인</h5>
 										<p class="text-gray-700 leading-relaxed">{analysis.relationships.socialLuck}</p>
 									</div>
 								{/if}

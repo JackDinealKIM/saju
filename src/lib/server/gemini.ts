@@ -330,15 +330,38 @@ export async function analyzeSajuDeep(sajuData: SajuInput): Promise<any> {
 			// PART 3: 관계 및 건강
 			generatePart(basePrompt, `
                 # Task: [PART 3. 관계와 안녕]
-                연애, 결혼, 대인관계, 그리고 건강운에 집중하세요.
-                
+                연애, 애정, 결혼, 대인관계, 그리고 건강운에 집중하세요.
+                연애운과 애정운은 특히 상세하게 분석해주세요.
+
                 # Output Schema (JSON Only):
                 {
                     "relationships": {
                         "title": "인연과 사랑",
                         "emoji": "💕",
-                        "loveStyle": "연애 스타일 분석",
-                        "spouseLuck": "배우자운 및 결혼 시기",
+                        "loveStyle": {
+                            "approach": "연애 접근 방식 (적극적/소극적, 이상형 등)",
+                            "expression": "애정 표현 스타일 (직접적/간접적)",
+                            "compatibility": "잘 맞는 이성 유형 상세 분석",
+                            "dating": "연애할 때 특징과 행동 패턴"
+                        },
+                        "loveFortune": {
+                            "overall": "전반적인 연애운 분석 (3-4문장)",
+                            "timing": "연애운이 좋은 시기",
+                            "challenges": "연애에서 겪을 수 있는 어려움",
+                            "advice": "연애 성공을 위한 구체적 조언"
+                        },
+                        "affectionLuck": {
+                            "charm": "타고난 매력 포인트 분석",
+                            "popularity": "이성에게 인기도 및 어필 방법",
+                            "romanticTendency": "낭만적 성향 및 연애 가치관",
+                            "longTermLove": "장기 연애 및 안정적 관계 유지 능력"
+                        },
+                        "spouseLuck": {
+                            "timing": "결혼 적령기 및 좋은 시기",
+                            "idealSpouse": "이상적인 배우자 유형 상세 묘사",
+                            "marriageStyle": "결혼 생활 스타일 예측",
+                            "advice": "행복한 결혼을 위한 조언"
+                        },
                         "socialLuck": "인복 및 귀인 분석",
                         "caution": "인간관계 주의점"
                     },
