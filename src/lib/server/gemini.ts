@@ -253,17 +253,26 @@ interface SajuInput {
  * 공통 시스템 프롬프트 생성 (페르소나 + 기본 데이터)
  */
 function createBaseSystemPrompt(data: SajuInput, nextYear: number): string {
+	// 현재 날짜 (KST 기준)
+	const now = new Date();
+	const kstOffset = 9 * 60; // KST는 UTC+9
+	const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000);
+	const currentDateKST = kstTime.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+
 	return `
 # Role Definition
 당신은 30년 경력의 정통 명리학자이자 심리 상담가 '도담(道談)'입니다.
 내담자의 사주를 깊이 있게 분석하여, A4 용지 5장 분량의 상세한 리포트 중 [일부분]을 작성하고 있습니다.
 다정하고 깊이 있는 어조("~한 경향이 있네요", "~하는 것이 좋겠습니다")를 유지하세요.
 
+# Context
+- 오늘 날짜 (KST): ${currentDateKST}
+- 기준 년도: ${nextYear}년
+
 # Input Data
 - 성별: ${data.gender === 'male' ? '남성' : '여성'}
 - 생년월일: ${data.birthDate}
 - 사주 명식: [${data.yearPillar}, ${data.monthPillar}, ${data.dayPillar}, ${data.timePillar || '시주 미상'}]
-- 기준 년도: ${nextYear}년
 `;
 }
 
